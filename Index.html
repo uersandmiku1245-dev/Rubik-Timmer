@@ -1,0 +1,192 @@
+
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Thế Nguyên Love</title>
+<style>
+*{box-sizing:border-box}
+body{
+ margin:0;
+ min-height:100vh;
+ display:flex;
+ align-items:center;
+ justify-content:center;
+ font-family:Arial,sans-serif;
+ color:white;
+ background:linear-gradient(-45deg,#10152c,#242b52,#152b40,#301c42);
+ background-size:400% 400%;
+ animation:bg 12s ease infinite;
+}
+@keyframes bg{
+ 0%{background-position:0% 50%}
+ 50%{background-position:100% 50%}
+ 100%{background-position:0% 50%}
+}
+.container{
+ width:90%;
+ max-width:430px;
+ padding:30px 20px;
+ text-align:center;
+ background:#ffffff12;
+ border:1px solid #ffffff25;
+ border-radius:25px;
+ backdrop-filter:blur(15px);
+ box-shadow:0 15px 50px #0005;
+}
+h1{font-size:29px;letter-spacing:1px}
+.sub{color:#b9c8e9;font-size:13px}
+.cube{
+ width:150px;height:150px;
+ margin:30px auto;
+ display:grid;
+ grid-template-columns:repeat(3,1fr);
+ grid-template-rows:repeat(3,1fr);
+ gap:5px;
+ transform:rotate(-8deg);
+}
+.cube div{
+ border-radius:7px;
+ box-shadow:inset 0 0 5px #0008;
+}
+.timer{
+ font-size:65px;
+ font-weight:bold;
+ margin:25px 0;
+ font-variant-numeric:tabular-nums;
+}
+#holdBtn{
+ width:100%;
+ padding:23px 10px;
+ border:0;
+ border-radius:15px;
+ background:linear-gradient(100deg,#647cff,#a36bff);
+ color:white;
+ font-size:19px;
+ font-weight:bold;
+ touch-action:none;
+ user-select:none;
+ transition:.15s;
+}
+#holdBtn:active{transform:scale(.96)}
+#holdBtn.ready{background:linear-gradient(100deg,#20c997,#00a8a8)}
+.info{margin-top:18px;color:#bbc6dc;font-size:13px}
+.reset{
+ margin-top:18px;
+ padding:10px 25px;
+ border:1px solid #ffffff50;
+ border-radius:10px;
+ background:transparent;
+ color:white;
+}
+</style>
+</head>
+<body>
+<div class="container">
+ <h1>Thế Nguyên Love</h1>
+ <div class="sub">RUBIK TIMER</div>
+
+ <div class="cube">
+  <div style="background:#fff"></div>
+  <div style="background:#e63946"></div>
+  <div style="background:#fff"></div>
+  <div style="background:#ffcc00"></div>
+  <div style="background:#fff"></div>
+  <div style="background:#20c55a"></div>
+  <div style="background:#2563eb"></div>
+  <div style="background:#ff8c22"></div>
+  <div style="background:#2563eb"></div>
+ </div>
+
+ <div class="timer" id="timer">0.000</div>
+
+ <button id="holdBtn">GIỮ 0.5S ĐỂ BẮT ĐẦU</button>
+
+ <div class="info" id="status">
+  Giữ nút 0,5 giây để bắt đầu hoặc dừng
+ </div>
+
+ <button class="reset" onclick="resetTimer()">RESET</button>
+</div>
+
+<script>
+const btn=document.getElementById("holdBtn");
+const timer=document.getElementById("timer");
+const statusText=document.getElementById("status");
+
+let running=false;
+let startTime=0;
+let elapsed=0;
+let holdTimeout=null;
+let holding=false;
+let activated=false;
+let animation=null;
+
+function update(){
+ if(!running)return;
+ elapsed=performance.now()-startTime;
+ timer.textContent=(elapsed/1000).toFixed(3);
+ animation=requestAnimationFrame(update);
+}
+
+function toggleTimer(){
+ if(!running){
+  running=true;
+  startTime=performance.now();
+  statusText.textContent="Đang giải Rubik...";
+  btn.textContent="GIỮ 0.5S ĐỂ DỪNG";
+  btn.classList.add("ready");
+  update();
+ }else{
+  running=false;
+  cancelAnimationFrame(animation);
+  elapsed=performance.now()-startTime;
+  timer.textContent=(elapsed/1000).toFixed(3);
+  statusText.textContent="Đã dừng! Hoàn thành.";
+  btn.textContent="GIỮ 0.5S ĐỂ BẮT ĐẦU";
+  btn.classList.remove("ready");
+ }
+}
+
+function pointerDown(e){
+ e.preventDefault();
+ if(holding)return;
+ holding=true;
+ activated=false;
+ btn.style.opacity=".65";
+
+ holdTimeout=setTimeout(()=>{
+  if(!holding)return;
+  activated=true;
+  toggleTimer();
+ },500);
+}
+
+function pointerUp(){
+ if(!holding)return;
+ holding=false;
+ clearTimeout(holdTimeout);
+ btn.style.opacity="1";
+}
+
+btn.addEventListener("pointerdown",pointerDown);
+btn.addEventListener("pointerup",pointerUp);
+btn.addEventListener("pointerleave",pointerUp);
+btn.addEventListener("pointercancel",pointerUp);
+
+function resetTimer(){
+ running=false;
+ holding=false;
+ clearTimeout(holdTimeout);
+ cancelAnimationFrame(animation);
+ elapsed=0;
+ timer.textContent="0.000";
+ statusText.textContent="Giữ nút 0,5 giây để bắt đầu hoặc dừng";
+ btn.textContent="GIỮ 0.5S ĐỂ BẮT ĐẦU";
+ btn.classList.remove("ready");
+ btn.style.opacity="1";
+}
+</script>
+</body>
+</html>
